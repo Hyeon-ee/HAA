@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAA</title>
+    <style>
+        * {font-family: 'Noto Sans KR', sans-serif;}
+        body {
+            display: flex;
+            overflow-x: hidden;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #imageSlider {
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: transform 0.3s ease-in-out;
+            max-width: 90%;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+
+        img {
+            cursor: pointer;
+            width: 80px;
+            height: auto;
+            object-fit: cover;
+            margin: 0 30px;
+            transition: transform 0.2s;
+        }
+
+        img:hover {
+            transform: scale(1.1);
+        }
+
+        #centeredImage {
+            width: 300px; /* 가로 크기를 조절합니다. */
+            height: 350px; /* 세로 크기를 조절합니다. */
+            object-fit: contain; /* 이미지를 가운데에 맞추도록 설정 */
+            position: fixed;
+            top: calc(50% + 175px); /* 수정된 부분 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        #prevBtn,
+        #nextBtn,
+        #playPauseBtn {
+            position: fixed;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: black;
+        }
+
+        #prevBtn {
+            left: 10px;
+        }
+
+        #nextBtn {
+            right: 10px;
+        }
+
+        #playPauseBtn {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #prevBtn::before {
+            content: "⬅";
+        }
+
+        #nextBtn::before {
+            content: "➡";
+        }
+
+        #selectedHatNumber {
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+
+        #progressBar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+    
+    <button id="prevBtn" onclick="changeImage(-1)"></button>
+    <div id="imageSlider" onclick="selectImage(event)">
+        <img src="img/hat1.png" alt="Image 1">
+        <img src="img/hat2.png" alt="Image 2">
+        <img src="img/hat3.png" alt="Image 3">
+        <img src="img/hat4.png" alt="Image 4">
+        <img src="img/hat5.png" alt="Image 5">
+        <img src="img/hat6.png" alt="Image 6">
+        <img src="img/hat7.png" alt="Image 7">
+        <img src="img/hat8.png" alt="Image 8">
+        <img src="img/hat9.png" alt="Image 9">
+    </div>
+    <img id="centeredImage" src="img/aro.png" alt="Centered Image">
+    <button id="nextBtn" onclick="changeImage(1)"></button>
+    <button id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
+
+    <div id="selectedHatNumber"><span id="selectedHatIndex">1</span></div>
+
+    <div id="progressBar">
+        <progress id="audioProgress" value="0" max="1"></progress>
+    </div>
+
+    <script>
+        var currentIndex = 1;
+        var imageSlider = document.getElementById('imageSlider');
+        var images = document.querySelectorAll('#imageSlider img');
+        var centeredImage = document.getElementById('centeredImage');
+        var selectedHatIndexElement = document.getElementById('selectedHatIndex');
+        var audioPlayer = document.getElementById('audioPlayer');
+        var playPauseBtn = document.getElementById('playPauseBtn');
+        var audioProgress = document.getElementById('audioProgress');
+        
+        audioPlayer.volume = 1; // 초기에 음소거가 아닌 상태로 설정
+
+        window.onload = function () {
+            centerImage();
+        };
+
+        window.onresize = function () {
+            centerImage();
+        };
+
+        audioPlayer.addEventListener('timeupdate', updateProgressBar);
+
+        function changeImage(offset) {
+            currentIndex += offset;
+
+            if (currentIndex < 1) {
+                currentIndex = images.length;
+            } else if (currentIndex > images.length) {
+                currentIndex = 1;
+            }
+
+            updateSelectedHatNumber();
+            playAudio();
+            centerImage();
+        }
+
+        function selectImage(event) {
+            if (event.target.tagName === 'IMG') {
+                var selectedImageIndex = Array.from(images).indexOf(event.target) + 1;
+                currentIndex = selectedImageIndex;
+                updateSelectedHatNumber();
+                playAudio();
+                changeImage(0);
+            }
+        }
+
+        function centerImage() {
+            var container = document.getElementById('imageSlider');
+            var scrollLeft = images[currentIndex - 1].offsetLeft - (container.offsetWidth - images[currentIndex - 1].offsetWidth) / 2;
+            container.style.transform = 'translateX(' + -scrollLeft + 'px)';
+            centeredImage.style.left = '50%';
+            centeredImage.style.transform = 'translate(-50%, -50%)';
+        }
+
+        function updateSelectedHatNumber() {
+            selectedHatIndexElement.textContent = currentIndex;
+        }
+
+        function playAudio() {
+            audioPlayer.src = 'music/music' + currentIndex + '.mp3'; // 음악 파일 경로를 설정합니다.
+            audioPlayer.play();
+        }
+
+        function togglePlayPause() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.textContent = '⏸️';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.textContent = '▶️';
+            }
+        }
+
+        function updateProgressBar() {
+            var value = audioPlayer.currentTime / audioPlayer.duration;
+            audioProgress.value = isNaN(value) ? 0 : value;
+        }
+    </script>
+</body>
+</html>
