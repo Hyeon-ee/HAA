@@ -7,7 +7,6 @@
     <style>
         * {font-family: 'Noto Sans KR', sans-serif;}
         body {
-            overflow: hidden;
             display: flex;
             overflow-x: hidden;
             justify-content: center;
@@ -19,7 +18,8 @@
         #imageSlider {
             display: flex;
             align-items: center;
-            position: relative;
+            position: fixed;
+            transform: translate(-50%, -50%);
             transition: transform 0.3s ease-in-out;
             max-width: 90%;
             margin: 0 auto;
@@ -40,11 +40,11 @@
         }
 
         #centeredImage {
-            width: 300px; /* 가로 크기를 조절합니다. */
-            height: 350px; /* 세로 크기를 조절합니다. */
-            object-fit: contain; /* 이미지를 가운데에 맞추도록 설정 */
+            width: 300px;
+            height: 350px;
+            object-fit: contain;
             position: fixed;
-            top: calc(50% + 175px); /* 수정된 부분 */
+            top: calc(50% + 175px);
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: -1;
@@ -52,9 +52,15 @@
 
         #prevBtn,
         #nextBtn,
-        #playPauseBtn {
+        #playPauseBtn,
+        #selectedHatNumber,
+        #progressBar {
             position: fixed;
+        }
+
+        #prevBtn {
             top: 10px;
+            left: 10px;
             font-size: 24px;
             cursor: pointer;
             background-color: transparent;
@@ -62,38 +68,35 @@
             color: black;
         }
 
-        #prevBtn {
-            left: 10px;
-        }
-
         #nextBtn {
+            top: 10px;
             right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: black;
         }
 
         #playPauseBtn {
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-        }
-
-        #prevBtn::before {
-            content: "⬅";
-        }
-
-        #nextBtn::before {
-            content: "➡";
+            font-size: 24px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: black;
         }
 
         #selectedHatNumber {
-            position: fixed;
             top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 24px;
-
         }
 
         #progressBar {
-            position: fixed;
             bottom: 0;
             width: 100%;
         }
@@ -102,7 +105,7 @@
 <body>
     <audio id="audioPlayer" controls style="display: none;"></audio>
     
-    <button id="prevBtn" onclick="changeImage(-1)"></button>
+    <button id="prevBtn" onclick="changeImage(-1)">←</button>
     <div id="imageSlider" onclick="selectImage(event)">
         <img src="img/hat1.png" alt="Image 1">
         <img src="img/hat2.png" alt="Image 2">
@@ -115,7 +118,7 @@
         <img src="img/hat9.png" alt="Image 9">
     </div>
     <img id="centeredImage" src="img/aro.png" alt="Centered Image">
-    <button id="nextBtn" onclick="changeImage(1)"></button>
+    <button id="nextBtn" onclick="changeImage(1)">→</button>
     <button id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
 
     <div id="selectedHatNumber"><span id="selectedHatIndex">1</span></div>
@@ -160,6 +163,7 @@
             centerImage();
         }
 
+        //모자 선택
         function selectImage(event) {
             if (event.target.tagName === 'IMG') {
                 var selectedImageIndex = Array.from(images).indexOf(event.target) + 1;
